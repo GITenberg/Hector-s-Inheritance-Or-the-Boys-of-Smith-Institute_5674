@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: et9WOV/HhkEE2sPYiHNwIxQKEg0GizjZmVVo3xZxZ+IrfGouduONlMMY+WgNNLhFEXvmCojJWauxcFiANeFzHEYrzq+jF3G98d2tj3Ujhq+y/TwVIizwJxsbdD71CpTQB8TZGHP1n+CUUIuUWDVb/isnnjyL37ScPdToNoT+f41ilgJ83f6ds/XAl+oGjtiizr3cNvKw2Cmax0Hyli1AZ8GmEmj3xJN1aWgHlG10ke+p+uLoP49wuojG4/EBp3LsDAzfP7KZQT9ZdSU6TbCXT2CNWmMypRuKxZQEKXgGMzlcEKvbAs9FuKGX8ym/l3xYyvH1AVfPRSOxoraalA4f6NOapju+5TmPEBsxnZQrHGG7nS0la98ZHR+7u9sehPhCm4RdflQnrtw5MjdMr8oHidBO0E0j4+FZZ2BFo6DYjhysLYnV9wolG+PqiqbGD6jxE7V7UAqcBcgbJzstTqBF8H2Yzsbhxi8JymUoMVUXJrCZ/jvshZiNCmF+36JSiv/QPgZNrBFEdbTgwM4DOtfrGvKzF7a9CXJ1tQS/+24eX5uW+M/uXyqE/BAer4T5/98Kgc8GWQ87kYjaIyZ4uGsAcvkY6xWYF8s8Bjk5u6sAV+nktPdbyA/1Ed5xOFCC96bQCLhMAs9zyYuPjo8sasYH9T3qNWtga6qb5tV99r5RYzI=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/Hector-s-Inheritance-Or-the-Boys-of-Smith-Institute_5674
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
